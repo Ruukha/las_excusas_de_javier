@@ -1,3 +1,3 @@
 class Map:
     def __init__(self, map):
-        map = map
+        self.map = map
