@@ -20,7 +20,7 @@ class Player:
     def move(self, dir):
         match dir:
             case 'norte':
-                d = 1
+                d = 0
             case 'sur':
                 d = 1
             case 'este':
@@ -33,4 +33,4 @@ class Player:
         self.inv.append(obj)
 
     def describe(self):
-        print(self.__map[self.pos][1])
+        print(f'{self.pos.title()}: {self.__map[self.pos][1].lower()}')
