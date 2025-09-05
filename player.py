@@ -1,10 +1,10 @@
 class Player:
-    def __init__(self, map, pos):
+    def __init__(self, map, pos, conditions = None):
         self.__map = map
         self.__pos = pos
         self.inv = []
-        self.tiempo = 0
-        self.conditions = {}
+        self.time = 60
+        self.conditions = conditions if conditions else []
     
     @property
     def pos(self):

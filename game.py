@@ -1,6 +1,7 @@
 from player import Player
-from npc import Npc
+from npc import Npc, Event
 
+# Creación del mapa
 # El mapa es un esquema relacional; lugar: [N, S, E, O]
 map = {
     'habitación': (['baño', None, 'comedor', None], "Pequeña, desordenada, donde paso la mayor parte del día."),
@@ -8,39 +9,83 @@ map = {
     'comedor': (['cocina', None, 'entradita', 'habitación'], "Bastante espacioso, aun no recogí las cajas vacias de pizza de ayer."),
     'cocina': ([None, 'comedor', None, None], "Una cocina normal aunque algo caótica."),
     'entradita': ([None, 'calle', None, 'comedor'], "Pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."),
-    'calle': (['entradita', 'tram', 'calle2', 'bus'], "Se respira un aire fresco que me motiva a no llegar tarde hoy también.."),
+    'calle': (['entradita', 'tram', 'calle2', 'bus'], "Se respira un aire fresco que me motiva a no llegar tarde hoy también."),
     'calle2': ([None, None, 'entrada al campus', 'calle'], "Me estoy acercando al campus, aunque me estoy cansando ya de caminar."),
     'entrada al campus': ([None, None, 'centro del campus', 'calle2'], ""),
     'centro del campus': (['facultad', 'cafetería', 'parque', 'entrada al campus'], "La mejor universidad de la zona, la verdad no se ni como me aceptaron."),
     'cafetería': ([None, None, None, 'centro del campus'], "Lleno de gente de todo el campus. Esta el camarero."),
-    'facultad': (['bar', 'centro del campus', None, None]),
+    'facultad': (['bar', 'centro del campus', None, 'clase'], ""),
     'parque': (['centro del campus', None, None, None], "El parque es tan verde y encantador como siempre, dan ganas de quedarse aqui y no ir a clase. Hay una chica."),
-    'bar': ([None, 'facultad', None, None]),
+    'bar': ([None, 'facultad', None, None], ""),
     'clase': ([None, None, None, None], "Me espera Faraon, que se imaginaba que podria llegar tarde."),
     'bus': ([None, None, None, None], "Tras esperar al bus, finalmente llega, lleno de gente."),
     'tram': ([None, None, None, None], "Tras esperar al tram, finalmente llega, lleno de gente.")
 }
+
+# Creación de eventos
+despertador = Event('habitación', {
+    'normal':
+    {
+        '': {'message': """
+Suena el despertador. Que haces?
+    1. Levantarte
+    2. Posponer el despertador
+""", 'time': 0, 'repeat': False, 'end': False},
+        '1': {'message': """
+Apagas el despertador y te levantas. Empieza tu día.
+""", 'time': 0, 'repeat': False, 'end': True},
+        '2': {'message': """
+Te quedas dormido hasta que vuelva a sonar.
+""", 'time': 5, 'repeat': True, 'end': False}
+    }
+})
+ducha = Event('baño', {
+    'normal':
+    {
+        '': {'message': """
+Deberías de darte una ducha.
+    1. Con agua fría
+    2. Con agua caliente
+    3. No ducharme
+""", 'time': 0, 'repeat': False, 'end': False},
+        '1': {'message': """
+El agua fría te hace salir de la ducha más rápido.
+""", 'time': 10, 'repeat': False, 'end': True},
+        '2': {'message': """
+Estabas tan a gusto bajo el agua caliente que se te pasa el tiempo.
+""", 'time': 30, 'repeat': False, 'end': True},
+        '3': {'message': """
+Te pones algo de desodorante, esperando que no lo noten tus compañeros.
+""", 'time': 0, 'repeat': False, 'end': True}
+    }
+})
+
+# Creación de personajes
 javier = Player(map, 'habitación')
 faraon = Npc('clase', {
     'tarde':
-    {"": """
+    {'': """
 "Por qué llegas tarde esta vez?"
     1. Un amigo estaba enfermo y necesitaba ayuda.
     2. El bus/tram falló y no llegué a tiempo.
     3. Dormí más de la cuenta y no pude levantarme.
     4. Faraón dame una alegria por favor que llevo 18 años sin tener ninguna.
 """,
-     "1": """
+     '1': """
 "Y seguro que no tenía a nadie más, invéntate una excusa mejor a la próxima."
+BAD ENDING: No haces el examen
 """,
-     "2": """
+     '2': """
 "Haberte despertado antes, gandul."
+BAD ENDING: No haces el examen
 """,
      '3': """
-"Al menos eres sincero, pero nos veremos en la recuperación."
+"Al menos eres sincero, despiértate más pronto para la recuperación."
+BAD ENDING: No haces el examen
 """,
      '4': """
 "Que sean otros 18 años más."
+BAD ENDING: No haces el examen
 """
 },
     'juan':
@@ -62,6 +107,9 @@ has llegado tarde igual. Id a un hotel o algo que en esta clase no entras
 hasta la recuperación."
 Bueno, ya había asumido que iba a ir a la recuperación igualmente, al menos
 así me puedo quedar más rato con Juan.
+Además, Juan, sintiéndose culpable de hacerte llegar tarde al examen (como si
+no fueses ya tarde de por sí), te anima a estudiar y apruebas en la recuperación.
+GOOD ENDING: Juan
 """
 },
     'pronto':
@@ -107,6 +155,18 @@ Acciones       Descripcion
  salir          Saldrás de la partida
 """
 
+def select_chat(player, npc):
+    if npc == faraon:
+        if player.conditions['juan']:
+            return 'juan'
+        time = player.time
+        if time < 60:
+            return 'pronto'
+        else:
+            return 'tarde'
+    else:
+        return 'normal'
+        
 # bucle del juego
 def start():
     print("""
@@ -119,10 +179,12 @@ Sabiendo que el dia siguiente tienes el examen final de logica, la asignatura de
     while True:
         javier.describe()
 
-        if javier.pos == 'bus':
-            "Solo puedes coger el bus"
-        elif javier.pos == 'tram':
-            pass
+        if javier.pos in Event.locs:
+            for event in Event.npcs:
+                if javier.pos == event.pos and event not in javier.conditions:
+                    javier.time += event.activate(select_chat(javier, event))
+                    javier.conditions.append(event)
+                    break
 
         accion = input('Acción: ').lower()
         if accion in ['norte', 'sur', 'este', 'oeste']:
@@ -142,7 +204,8 @@ Sabiendo que el dia siguiente tienes el examen final de logica, la asignatura de
             if javier.pos in Npc.locs:
                 for npc in Npc.npcs:
                     if javier.pos == npc.pos:
-                        npc.hablar()
+                        if npc.hablar(select_chat(javier, npc)):
+                            return 0
                         break
         elif 'ayuda' in accion:
             print(ayuda, end='')
