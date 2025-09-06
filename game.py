@@ -2,24 +2,24 @@ from player import Player
 from npc import Npc, Event
 
 # Creación del mapa
-# El mapa es un esquema relacional; lugar: [N, S, E, O]
+# El mapa es un esquema relacional; lugar: ([N, S, E, O], desc)
 map = {
-    'habitación': (['baño', None, 'comedor', None], "Pequeña, desordenada, donde paso la mayor parte del día."),
-    'baño': ([None, 'habitación', None, None], "Pequeño pero acogedor."),
-    'comedor': (['cocina', None, 'entradita', 'habitación'], "Bastante espacioso, aun no recogí las cajas vacias de pizza de ayer."),
-    'cocina': ([None, 'comedor', None, None], "Una cocina normal aunque algo caótica."),
-    'entradita': ([None, 'calle', None, 'comedor'], "Pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."),
-    'calle': (['entradita', 'tram', 'calle2', 'bus'], "Se respira un aire fresco que me motiva a no llegar tarde hoy también."),
-    'calle2': ([None, None, 'entrada al campus', 'calle'], "Me estoy acercando al campus, aunque me estoy cansando ya de caminar."),
+    'habitación': (['baño', None, 'comedor', None], "pequeña, desordenada, donde paso la mayor parte del día."),
+    'baño': ([None, 'habitación', None, None], "pequeño pero acogedor."),
+    'comedor': (['cocina', None, 'entradita', 'habitación'], "bastante espacioso. Aun no recogí las cajas vacias de pizza de ayer."),
+    'cocina': ([None, 'comedor', None, None], "una cocina normal, aunque algo caótica."),
+    'entradita': ([None, 'calle', None, 'comedor'], "pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."),
+    'calle': (['entradita', 'tram', 'calle2', 'bus'], "se respira un aire fresco que me motiva a no llegar tarde hoy también."),
+    'calle2': ([None, None, 'entrada al campus', 'calle'], "me estoy acercando al campus, aunque me estoy cansando ya de caminar."),
     'entrada al campus': ([None, None, 'centro del campus', 'calle2'], ""),
-    'centro del campus': (['facultad', 'cafetería', 'parque', 'entrada al campus'], "La mejor universidad de la zona, la verdad no se ni como me aceptaron."),
-    'cafetería': ([None, None, None, 'centro del campus'], "Lleno de gente de todo el campus. Esta el camarero."),
-    'facultad': (['bar', 'centro del campus', None, 'clase'], ""),
-    'parque': (['centro del campus', None, None, None], "El parque es tan verde y encantador como siempre, dan ganas de quedarse aqui y no ir a clase. Hay una chica."),
+    'centro del campus': (['facultad', 'cafetería', 'parque', 'entrada al campus'], "la mejor universidad de la zona, la verdad no sé ni cómo me aceptaron."),
+    'cafetería': ([None, None, None, 'centro del campus'], "lleno de gente de todo el campus. Está el camarero."),
+    'facultad': (['bar', 'centro del campus', None, 'clase'], "es donde está tu clase. Ves a Nahuel saludándote."),
+    'parque': (['centro del campus', None, None, None], "el parque es tan verde y encantador como siempre, dan ganas de quedarse aquí y no ir a clase. Hay una chica."),
     'bar': ([None, 'facultad', None, None], ""),
-    'clase': ([None, None, None, None], "Me espera Faraon, que se imaginaba que podria llegar tarde."),
-    'bus': ([None, None, None, None], "Tras esperar al bus, finalmente llega, lleno de gente."),
-    'tram': ([None, None, None, None], "Tras esperar al tram, finalmente llega, lleno de gente.")
+    'clase': ([None, None, None, None], "me espera Faraon, que se imaginaba que podría llegar tarde."),
+    'bus': ([None, None, None, None], "estás en la parada del bus."),
+    'tram': ([None, None, None, None], "estás en la parada del tram.")
 }
 
 # Creación de eventos
@@ -30,13 +30,13 @@ despertador = Event('habitación', {
 Suena el despertador. Que haces?
     1. Levantarte
     2. Posponer el despertador
-""", 'time': 0, 'repeat': False, 'end': False},
+"""},
         '1': {'message': """
 Apagas el despertador y te levantas. Empieza tu día.
-""", 'time': 0, 'repeat': False, 'end': True},
+""", 'end': True},
         '2': {'message': """
 Te quedas dormido hasta que vuelva a sonar.
-""", 'time': 5, 'repeat': True, 'end': False}
+""", 'time': 5, 'repeat': True}
     }
 })
 ducha = Event('baño', {
@@ -47,16 +47,46 @@ Deberías de darte una ducha.
     1. Con agua fría
     2. Con agua caliente
     3. No ducharme
-""", 'time': 0, 'repeat': False, 'end': False},
+"""},
         '1': {'message': """
 El agua fría te hace salir de la ducha más rápido.
-""", 'time': 10, 'repeat': False, 'end': True},
+""", 'time': 10, 'end': True},
         '2': {'message': """
 Estabas tan a gusto bajo el agua caliente que se te pasa el tiempo.
-""", 'time': 30, 'repeat': False, 'end': True},
+""", 'time': 30, 'end': True},
         '3': {'message': """
 Te pones algo de desodorante, esperando que no lo noten tus compañeros.
-""", 'time': 0, 'repeat': False, 'end': True}
+""", 'end': True}
+    }
+})
+bus = Event('bus', {
+    'normal':
+    {
+        '': {'message': """
+Quieres esperar al bus?
+    1. Sí
+    2. No
+"""},
+        '1': {'message': """
+Tras esperar un poco al bus, finalmente llega.
+""", 'time': 10, 'end': True, 'return': 'bus'},
+        '2': {'message':"""
+""", 'end': True, 'return': 'bus'}
+    }
+})
+tram = Event('tram', {
+    'normal':
+    {
+        '': {'message': """
+Quieres esperar al tram?
+    1. Sí
+    2. No
+"""},
+        '1': {'message': """
+Tras esperar un poco al tram, finalmente llega.
+""", 'time': 10, 'end': True, 'return': 'tram'},
+        '2': {'message':"""
+""", 'end': True, 'return': 'tram'}
     }
 })
 
@@ -171,8 +201,8 @@ def select_chat(player, npc):
 def start():
     print("""
 Llevas unos meses estudiando ingeneria de IA en la universidad. Todos los dias intentas llegar a tiempo, pero siempre pasa algo que te lo impide.
-Faraon siempre dice lo mismo; "Tienes mas cuentos que Calleja", y es probable que no acepte mas excusas.
-Sabiendo que el dia siguiente tienes el examen final de logica, la asignatura de Faraon, te preparas la alarma y te vas a dormir, aunque algo tarde.
+Faraón, tu profesor, siempre dice lo mismo; "Tienes mas cuentos que Calleja", y es probable que no acepte más excusas.
+Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura de Faraon, te preparas la alarma y te vas a dormir, aunque algo tarde.
 """, end='')
     print(ayuda)
     
@@ -182,8 +212,11 @@ Sabiendo que el dia siguiente tienes el examen final de logica, la asignatura de
         if javier.pos in Event.locs:
             for event in Event.npcs:
                 if javier.pos == event.pos and event not in javier.conditions:
-                    javier.time += event.activate(select_chat(javier, event))
+                    time, ret = event.activate(select_chat(javier, event))
+                    javier.time += time
                     javier.conditions.append(event)
+                    if ret:
+                        javier.conditions.append(ret)
                     break
 
         accion = input('Acción: ').lower()
@@ -194,7 +227,10 @@ Sabiendo que el dia siguiente tienes el examen final de logica, la asignatura de
                 if 'coger' in accion:
                     javier.inv.append('cartera')
             if javier.pos in ['bus', 'tram']:
-                if 'cartera' in javier.inv:
+                if 'bus' in javier.conditions and javier.pos == 'bus' or 'tram' in javier.conditions and javier.pos == 'tram':
+                    print('Ya ha pasado.')
+                    continue
+                elif 'cartera' in javier.inv:
                     print("Pagas un viaje y vas hacia el campus")
                     javier.pos = 'entrada al campus'
                 else:
@@ -207,6 +243,8 @@ Sabiendo que el dia siguiente tienes el examen final de logica, la asignatura de
                         if npc.hablar(select_chat(javier, npc)):
                             return 0
                         break
+            else:
+                print("No hay nadie con quien hablar aquí.")
         elif 'ayuda' in accion:
             print(ayuda, end='')
         elif 'salir' in accion:

@@ -3,7 +3,7 @@ class Player:
         self.__map = map
         self.__pos = pos
         self.inv = []
-        self.time = 60
+        self.time = 0
         self.conditions = conditions if conditions else []
     
     @property
@@ -33,4 +33,4 @@ class Player:
         self.inv.append(obj)
 
     def describe(self):
-        print(f'{self.pos.title()}: {self.__map[self.pos][1].lower()}')
+        print(f'{self.pos.title()}: {self.__map[self.pos][1]}')

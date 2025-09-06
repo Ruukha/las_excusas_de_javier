@@ -44,13 +44,13 @@ class Event(Npc):
             situation = self.diags[chat][thread]
             print(situation['message'], end='')
 
-            if situation['time']:
+            if 'time' in situation:
                 print(f'+{situation['time']} minutos')
                 time += situation['time']
-            if situation['repeat']:
+            if 'repeat' in situation:
                 thread = thread[:-1]
                 continue
-            if situation['end']:
+            if 'end' in situation:
                 break
 
             ans = input('Respuesta: ')
@@ -59,7 +59,10 @@ class Event(Npc):
             else:
                 thread = thread + ans
 
-        return time
+        if 'return' in situation:
+            return time, situation['return']
+        else:
+            return time, None
     
     @property
     def pos(self):
