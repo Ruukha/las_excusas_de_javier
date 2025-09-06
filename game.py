@@ -1,194 +1,199 @@
 from player import Player
 from npc import Npc, Event
 
-# Creación del mapa
-# El mapa es un esquema relacional; lugar: ([N, S, E, O], desc)
-map = {
-    'habitación': (['baño', None, 'comedor', None], "pequeña, desordenada, donde paso la mayor parte del día."),
-    'baño': ([None, 'habitación', None, None], "pequeño pero acogedor."),
-    'comedor': (['cocina', None, 'entradita', 'habitación'], "bastante espacioso. Aun no recogí las cajas vacias de pizza de ayer."),
-    'cocina': ([None, 'comedor', None, None], "una cocina normal, aunque algo caótica."),
-    'entradita': ([None, 'calle', None, 'comedor'], "pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."),
-    'calle': (['entradita', 'tram', 'calle2', 'bus'], "se respira un aire fresco que me motiva a no llegar tarde hoy también."),
-    'calle2': ([None, None, 'entrada al campus', 'calle'], "me estoy acercando al campus, aunque me estoy cansando ya de caminar."),
-    'entrada al campus': ([None, None, 'centro del campus', 'calle2'], ""),
-    'centro del campus': (['facultad', 'cafetería', 'parque', 'entrada al campus'], "la mejor universidad de la zona, la verdad no sé ni cómo me aceptaron."),
-    'cafetería': ([None, None, None, 'centro del campus'], "lleno de gente de todo el campus. Está el camarero."),
-    'facultad': (['bar', 'centro del campus', None, 'clase'], "es donde está tu clase. Ves a Nahuel saludándote."),
-    'parque': (['centro del campus', None, None, None], "el parque es tan verde y encantador como siempre, dan ganas de quedarse aquí y no ir a clase. Hay una chica."),
-    'bar': ([None, 'facultad', None, None], ""),
-    'clase': ([None, None, None, None], "me espera Faraon, que se imaginaba que podría llegar tarde."),
-    'bus': ([None, None, 'calle', None], "estás en la parada del bus."),
-    'tram': (['calle', None, None, None], "estás en la parada del tram.")
-}
-
-# Creación de eventos
-despertador = Event('habitación', {
-    'normal':
-    {
-        '': {'message': """
-Suena el despertador. Que haces?
-    1. Levantarte
-    2. Posponer el despertador
-"""},
-        '1': {'message': """
-Apagas el despertador y te levantas. Empieza tu día.
-""", 'end': True},
-        '2': {'message': """
-Te quedas dormido hasta que vuelva a sonar.
-""", 'time': 5, 'repeat': True}
+def init():
+    # Creación del mapa
+    # El mapa es un esquema relacional; lugar: ([N, S, E, O], desc)
+    map = {
+        'habitación': (['baño', None, 'comedor', None], "pequeña, desordenada, donde paso la mayor parte del día."),
+        'baño': ([None, 'habitación', None, None], "pequeño pero acogedor."),
+        'comedor': (['cocina', None, 'entradita', 'habitación'], "bastante espacioso. Aun no recogí las cajas vacias de pizza de ayer."),
+        'cocina': ([None, 'comedor', None, None], "una cocina normal, aunque algo caótica."),
+        'entradita': ([None, 'calle', None, 'comedor'], "pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."),
+        'calle': (['entradita', 'tram', 'calle2', 'bus'], "se respira un aire fresco que me motiva a no llegar tarde hoy también."),
+        'calle2': ([None, None, 'entrada al campus', 'calle'], "me estoy acercando al campus, aunque me estoy cansando ya de caminar."),
+        'entrada al campus': ([None, None, 'centro del campus', 'calle2'], ""),
+        'centro del campus': (['facultad', 'cafetería', 'parque', 'entrada al campus'], "la mejor universidad de la zona, la verdad no sé ni cómo me aceptaron."),
+        'cafetería': ([None, None, None, 'centro del campus'], "lleno de gente de todo el campus. Está el camarero."),
+        'facultad': (['bar', 'centro del campus', None, 'clase'], "es donde está tu clase. Ves a Nahuel saludándote."),
+        'parque': (['centro del campus', None, None, None], "el parque es tan verde y encantador como siempre, dan ganas de quedarse aquí y no ir a clase. Hay una chica."),
+        'bar': ([None, 'facultad', None, None], ""),
+        'clase': ([None, None, None, None], "me espera Faraon, que se imaginaba que podría llegar tarde."),
+        'bus': ([None, None, 'calle', None], "estás en la parada del bus."),
+        'tram': (['calle', None, None, None], "estás en la parada del tram.")
     }
-})
-ducha = Event('baño', {
-    'normal':
-    {
-        '': {'message': """
-Deberías de darte una ducha.
-    1. Con agua fría
-    2. Con agua caliente
-    3. No ducharme
-"""},
-        '1': {'message': """
-El agua fría te hace salir de la ducha más rápido.
-""", 'time': 10, 'end': True},
-        '2': {'message': """
-Estabas tan a gusto bajo el agua caliente que se te pasa el tiempo.
-""", 'time': 30, 'end': True},
-        '3': {'message': """
-Te pones algo de desodorante, esperando que no lo noten tus compañeros.
-""", 'end': True}
-    }
-})
-bus = Event('bus', {
-    'normal':
-    {
-        '': {'message': """
-Quieres esperar al bus?
-    1. Sí
-    2. No
-"""},
-        '1': {'message': """
-Tras esperar un poco al bus, finalmente llega.
-""", 'time': 10, 'end': True, 'return': 'bus'},
-        '2': {'message':"""
-""", 'end': True, 'return': 'bus'}
-    }
-})
-tram = Event('tram', {
-    'normal':
-    {
-        '': {'message': """
-Quieres esperar al tram?
-    1. Sí
-    2. No
-"""},
-        '1': {'message': """
-Tras esperar un poco al tram, finalmente llega.
-""", 'time': 10, 'end': True, 'return': 'tram'},
-        '2': {'message':"""
-""", 'end': True, 'return': 'tram'}
-    }
-})
 
-# Creación de personajes
-javier = Player(map, 'habitación')
-faraon = Npc('clase', {
-    'tarde':
-    {'': {'message': """
-"Por qué llegas tarde esta vez?"
-    1. Un amigo estaba enfermo y necesitaba ayuda.
-    2. El bus/tram falló y no llegué a tiempo.
-    3. Dormí más de la cuenta y no pude levantarme.
-    4. Faraón dame una alegria por favor que llevo 18 años sin tener ninguna.
-"""},
-     '1': {'message': """
-"Y seguro que no tenía a nadie más, invéntate una excusa mejor a la próxima."
-BAD ENDING: No haces el examen
-""", 'ending': True},
-     '2': {'message': """
-"Haberte despertado antes, gandul."
-BAD ENDING: No haces el examen
-""", 'ending': True},
-     '3': {'message': """
-"Al menos eres sincero, despiértate más pronto para la recuperación."
-BAD ENDING: No haces el examen
-""", 'ending': True},
-     '4': {'message': """
-"Que sean otros 18 años más."
-BAD ENDING: No haces el examen
-""", 'ending': True}
-},
-    'juan':
-    {'': {'message': """
-"Llegas tan tarde que ni una buena excusa me vale."
-    1. Déjame explicartelo; hace unos días que voy bien de tiempo,
-       así que suelo pasar a por un café antes de entrar a clase.
-       Ahí es donde conocí a Juan, que me suele atender. Es un chico
-       tan maravilloso que hasta me ha hecho darme cuenta de que soy
-       gay, y hoy se ha levantado atrevido y se ha puesto a flirtear
-       conmigo. Al final, nos hemos quedado ahí hablando demasiado rato,
-       y se me ha hecho tarde, pero se ha hasta ofrecido a venir
-       conmigo para que veas que no es una excusa, y que el amor
-       lo puede todo.
-"""},
-     '1': {'message': """
-"Eso es muy bonito, me alegro mucho por tí, pero a mí que me cuentas,
-has llegado tarde igual. Id a un hotel o algo que en esta clase no entras
-hasta la recuperación."
-Bueno, ya había asumido que iba a ir a la recuperación igualmente, al menos
-así me puedo quedar más rato con Juan.
-Además, Juan, sintiéndose culpable de hacerte llegar tarde al examen (como si
-no fueses ya tarde de por sí), te anima a estudiar y apruebas en la recuperación.
-GOOD ENDING: Juan
-""", 'ending': True}
-},
-    'pronto':
-    {'': {'message': """
-Llegas pronto. Faraón te deja pasar al examen, aunque te mira sorprendido. No está acostumbrado a que llegues pronto
-""", 'end': True}}
-})
-chica = Npc('parque', {
-    'normal':
-    {
-        '': {'message': """
-Te acercas a la chica del parque, que está entretenida con unos gatos.
-No se da cuenta de tu presencia, así que te planteas qué decirle;
-    1. Que monos los gatitos
-    2. Sabes hacia dónde está la facultad de ingeniería?
-    3. *Quedarse en silencio*
-    4. *Irse*
-"""},
-        '1': {'message': """
-"Sii, se me acercan cuando llevo comida."
-    1. 
-    2. 
-    3. 
-"""},
+    # Creación de eventos
+    despertador = Event('habitación', {
+        'normal':
+        {
+            '': {'message': """
+    Suena el despertador. Que haces?
+        1. Levantarte
+        2. Posponer el despertador
+    """},
+            '1': {'message': """
+    Apagas el despertador y te levantas. Empieza tu día.
+    """, 'end': True},
+            '2': {'message': """
+    Te quedas dormido hasta que vuelva a sonar.
+    """, 'time': 5, 'repeat': True}
+        }
+    })
+    ducha = Event('baño', {
+        'normal':
+        {
+            '': {'message': """
+    Deberías de darte una ducha.
+        1. Con agua fría
+        2. Con agua caliente
+        3. No ducharme
+    """},
+            '1': {'message': """
+    El agua fría te hace salir de la ducha más rápido.
+    """, 'time': 10, 'end': True},
+            '2': {'message': """
+    Estabas tan a gusto bajo el agua caliente que se te pasa el tiempo.
+    """, 'time': 30, 'end': True},
+            '3': {'message': """
+    Te pones algo de desodorante, esperando que no lo noten tus compañeros.
+    """, 'end': True}
+        }
+    })
+    bus = Event('bus', {
+        'normal':
+        {
+            '': {'message': """
+    Quieres esperar al bus?
+        1. Sí
+        2. No
+    """},
+            '1': {'message': """
+    Tras esperar un poco al bus, finalmente llega.
+    """, 'time': 10, 'end': True, 'return': 'bus'},
+            '2': {'message':"""
+    """, 'end': True, 'return': 'bus'}
+        }
+    })
+    tram = Event('tram', {
+        'normal':
+        {
+            '': {'message': """
+    Quieres esperar al tram?
+        1. Sí
+        2. No
+    """},
+            '1': {'message': """
+    Tras esperar un poco al tram, finalmente llega.
+    """, 'time': 10, 'end': True, 'return': 'tram'},
+            '2': {'message':"""
+    """, 'end': True, 'return': 'tram'}
+        }
+    })
 
-        '2': {'message': """
-"Sí, sigue todo recto hacia el norte."
-"""},
+    # Creación de personajes
+    javier = Player(map, 'habitación')
+    faraon = Npc('clase', {
+        'tarde':
+        {'': {'message': """
+    "Por qué llegas tarde esta vez?"
+        1. Un amigo estaba enfermo y necesitaba ayuda.
+        2. El bus/tram falló y no llegué a tiempo.
+        3. Dormí más de la cuenta y no pude levantarme.
+        4. Faraón dame una alegria por favor que llevo 18 años sin tener ninguna.
+    """},
+         '1': {'message': """
+    "Y seguro que no tenía a nadie más, invéntate una excusa mejor a la próxima."
+    BAD ENDING: No haces el examen
+    """, 'ending': True},
+         '2': {'message': """
+    "Haberte despertado antes, gandul."
+    BAD ENDING: No haces el examen
+    """, 'ending': True},
+         '3': {'message': """
+    "Al menos eres sincero, despiértate más pronto para la recuperación."
+    BAD ENDING: No haces el examen
+    """, 'ending': True},
+         '4': {'message': """
+    "Que sean otros 18 años más."
+    BAD ENDING: No haces el examen
+    """, 'ending': True}
+    },
+        'juan':
+        {'': {'message': """
+    "Llegas tan tarde que ni una buena excusa me vale."
+        1. Déjame explicartelo; hace unos días que voy bien de tiempo,
+           así que suelo pasar a por un café antes de entrar a clase.
+           Ahí es donde conocí a Juan, que me suele atender. Es un chico
+           tan maravilloso que hasta me ha hecho darme cuenta de que soy
+           gay, y hoy se ha levantado atrevido y se ha puesto a flirtear
+           conmigo. Al final, nos hemos quedado ahí hablando demasiado rato,
+           y se me ha hecho tarde, pero se ha hasta ofrecido a venir
+           conmigo para que veas que no es una excusa, y que el amor
+           lo puede todo.
+    """},
+         '1': {'message': """
+    "Eso es muy bonito, me alegro mucho por tí, pero a mí que me cuentas,
+    has llegado tarde igual. Id a un hotel o algo que en esta clase no entras
+    hasta la recuperación."
+    Bueno, ya había asumido que iba a ir a la recuperación igualmente, al menos
+    así me puedo quedar más rato con Juan.
+    Además, Juan, sintiéndose culpable de hacerte llegar tarde al examen (como si
+    no fueses ya tarde de por sí), te anima a estudiar y apruebas en la recuperación.
+    GOOD ENDING: Juan
+    """, 'ending': True}
+    },
+        'pronto':
+        {'': {'message': """
+    Llegas pronto. Faraón te deja pasar al examen, aunque te mira sorprendido. No está acostumbrado a que llegues pronto
+    """, 'end': True}}
+    })
+    chica = Npc('parque', {
+        'normal':
+        {
+            '': {'message': """
+    Te acercas a la chica del parque, que está entretenida con unos gatos.
+    No se da cuenta de tu presencia, así que te planteas qué decirle;
+        1. Que monos los gatitos
+        2. Sabes hacia dónde está la facultad de ingeniería?
+        3. *Quedarse en silencio*
+        4. *Irse*
+    """},
+            '1': {'message': """
+    "Sii, se me acercan cuando llevo comida."
+        1. 
+        2. 
+        3. 
+    """},
 
-        '3': {'message': """
-"Necesitas algo?"
-"""}
-    }
-})
-nahuel = Npc('facultad', {})
-ayuda = """
-Acciones       Descripcion
- ayuda          Muestra esta lista
- norte          Si es posible, iré al norte
- sur            Si es posible, iré al sur
- este           Si es posible, iré al este
- oeste          Si es posible, iré al oeste
- coger          Coger un objeto o transporte
- hablar         Hablas con el personaje de esa sala (si hay)
- salir          Saldrás de la partida
-"""
+            '2': {'message': """
+    "Sí, sigue todo recto hacia el norte."
+    """},
 
-def select_chat(player, npc):
-    if npc == faraon:
+            '3': {'message': """
+    "Necesitas algo?"
+    """}
+        }
+    })
+    nahuel = Npc('facultad', {})
+    ayuda = """
+    Acciones       Descripcion
+     ayuda          Muestra esta lista
+     norte          Si es posible, iré al norte
+     sur            Si es posible, iré al sur
+     este           Si es posible, iré al este
+     oeste          Si es posible, iré al oeste
+     coger          Coger un objeto o transporte
+     hablar         Hablas con el personaje de esa sala (si hay)
+     salir          Saldrás de la partida
+    """
+
+    eventos = {'despertador': despertador, 'ducha': ducha, 'bus': bus, 'tram': tram}
+    personajes = {'faraon': faraon, 'chica': chica, 'nahuel': nahuel, 'ayuda': ayuda}
+    return javier, map, eventos, personajes
+
+def select_chat(player, npc, npcs):
+    if npc == npcs['faraon']:
         if player.conditions['juan']:
             return 'juan'
         time = player.time
@@ -201,16 +206,18 @@ def select_chat(player, npc):
         
 # bucle del juego
 def start():
+    javier, map, eventos, npcs = init()
     print("""
 Llevas unos meses estudiando ingeneria de IA en la universidad. Todos los dias intentas llegar a tiempo, pero siempre pasa algo que te lo impide.
 Faraón, tu profesor, siempre dice lo mismo; "Tienes mas cuentos que Calleja", y es probable que no acepte más excusas.
 Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura de Faraon, te preparas la alarma y te vas a dormir, aunque algo tarde.
 """, end='')
-    print(ayuda)
+    print(npcs['ayuda'])
     
     while True:
         javier.describe()
 
+        # Manejo de eventos
         if javier.pos in Event.locs:
             for event in Event.npcs:
                 if javier.pos == event.pos and event not in javier.conditions:
@@ -221,6 +228,7 @@ Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura 
                         javier.conditions.append(ret)
                     break
 
+        # Manejo de acciones
         accion = input('Acción: ').lower()
         if accion in ['norte', 'sur', 'este', 'oeste']:
             javier.move(accion)
@@ -242,13 +250,13 @@ Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura 
             if javier.pos in Npc.locs:
                 for npc in Npc.npcs:
                     if javier.pos == npc.pos:
-                        if npc.hablar(select_chat(javier, npc)):
+                        if npc.hablar(select_chat(javier, npc, npcs)):
                             return 0
                         break
             else:
                 print("No hay nadie con quien hablar aquí.")
         elif 'ayuda' in accion:
-            print(ayuda, end='')
+            print(npcs['ayuda'], end='')
         elif 'salir' in accion:
             break
 
