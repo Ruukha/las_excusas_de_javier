@@ -18,8 +18,8 @@ map = {
     'parque': (['centro del campus', None, None, None], "el parque es tan verde y encantador como siempre, dan ganas de quedarse aquí y no ir a clase. Hay una chica."),
     'bar': ([None, 'facultad', None, None], ""),
     'clase': ([None, None, None, None], "me espera Faraon, que se imaginaba que podría llegar tarde."),
-    'bus': ([None, None, None, None], "estás en la parada del bus."),
-    'tram': ([None, None, None, None], "estás en la parada del tram.")
+    'bus': ([None, None, 'calle', None], "estás en la parada del bus."),
+    'tram': (['calle', None, None, None], "estás en la parada del tram.")
 }
 
 # Creación de eventos
@@ -94,32 +94,32 @@ Tras esperar un poco al tram, finalmente llega.
 javier = Player(map, 'habitación')
 faraon = Npc('clase', {
     'tarde':
-    {'': """
+    {'': {'message': """
 "Por qué llegas tarde esta vez?"
     1. Un amigo estaba enfermo y necesitaba ayuda.
     2. El bus/tram falló y no llegué a tiempo.
     3. Dormí más de la cuenta y no pude levantarme.
     4. Faraón dame una alegria por favor que llevo 18 años sin tener ninguna.
-""",
-     '1': """
+"""},
+     '1': {'message': """
 "Y seguro que no tenía a nadie más, invéntate una excusa mejor a la próxima."
 BAD ENDING: No haces el examen
-""",
-     '2': """
+""", 'ending': True},
+     '2': {'message': """
 "Haberte despertado antes, gandul."
 BAD ENDING: No haces el examen
-""",
-     '3': """
+""", 'ending': True},
+     '3': {'message': """
 "Al menos eres sincero, despiértate más pronto para la recuperación."
 BAD ENDING: No haces el examen
-""",
-     '4': """
+""", 'ending': True},
+     '4': {'message': """
 "Que sean otros 18 años más."
 BAD ENDING: No haces el examen
-"""
+""", 'ending': True}
 },
     'juan':
-    {'': """
+    {'': {'message': """
 "Llegas tan tarde que ni una buena excusa me vale."
     1. Déjame explicartelo; hace unos días que voy bien de tiempo,
        así que suelo pasar a por un café antes de entrar a clase.
@@ -130,8 +130,8 @@ BAD ENDING: No haces el examen
        y se me ha hecho tarde, pero se ha hasta ofrecido a venir
        conmigo para que veas que no es una excusa, y que el amor
        lo puede todo.
-""",
-     '1': """
+"""},
+     '1': {'message': """
 "Eso es muy bonito, me alegro mucho por tí, pero a mí que me cuentas,
 has llegado tarde igual. Id a un hotel o algo que en esta clase no entras
 hasta la recuperación."
@@ -140,36 +140,38 @@ así me puedo quedar más rato con Juan.
 Además, Juan, sintiéndose culpable de hacerte llegar tarde al examen (como si
 no fueses ya tarde de por sí), te anima a estudiar y apruebas en la recuperación.
 GOOD ENDING: Juan
-"""
+""", 'ending': True}
 },
     'pronto':
-    {'': "Llegas pronto. Faraón te deja pasar al examen, aunque te mira sorprendido. No está acostumbrado a que llegues pronto"}
+    {'': {'message': """
+Llegas pronto. Faraón te deja pasar al examen, aunque te mira sorprendido. No está acostumbrado a que llegues pronto
+""", 'end': True}}
 })
 chica = Npc('parque', {
     'normal':
     {
-        '': """
+        '': {'message': """
 Te acercas a la chica del parque, que está entretenida con unos gatos.
 No se da cuenta de tu presencia, así que te planteas qué decirle;
     1. Que monos los gatitos
     2. Sabes hacia dónde está la facultad de ingeniería?
     3. *Quedarse en silencio*
     4. *Irse*
-""",
-        '1': """
+"""},
+        '1': {'message': """
 "Sii, se me acercan cuando llevo comida."
     1. 
     2. 
     3. 
-""",
+"""},
 
-        '2': """
+        '2': {'message': """
 "Sí, sigue todo recto hacia el norte."
-""",
+"""},
 
-        '3': """
+        '3': {'message': """
 "Necesitas algo?"
-"""
+"""}
     }
 })
 nahuel = Npc('facultad', {})
@@ -212,7 +214,7 @@ Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura 
         if javier.pos in Event.locs:
             for event in Event.npcs:
                 if javier.pos == event.pos and event not in javier.conditions:
-                    time, ret = event.activate(select_chat(javier, event))
+                    time, ret = event.hablar(select_chat(javier, event))
                     javier.time += time
                     javier.conditions.append(event)
                     if ret:
