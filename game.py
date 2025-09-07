@@ -168,15 +168,47 @@ def init():
     """},
 
             '2': {'message': """
-    "Sí, sigue todo recto hacia el norte."
-    """},
+    "Sigue todo recto hacia el norte."
+    """, 'end': True},
 
             '3': {'message': """
     "Necesitas algo?"
-    """}
+    """},
+            '4': {'message': '', 'end': True}
         }
     })
-    nahuel = Npc('facultad', {})
+    nahuel = Npc('facultad', {
+        'normal': {
+            '': {'message': """
+    "Che Javier! Qué tal?"
+        1. Hola! Todo bien, de camino al examen, con pocas ganas
+        2. Con prisas, ya casi es la hora del examen
+    """},
+            '1': {'message': """ 
+    "Yo vine para hacer el examen, pero la verdad me dijeron de ir al bar, te venís?"
+        1. Debería de ir al examen...
+        2. Bueno, la verdad no he estudiado mucho.
+    """},
+            '11': {'message': """
+    "Bueno, venite después entonces, mucha suerte."
+    """, 'end': True},
+            '12': {'message': """
+    "Ya sabía yo que te convencería."
+    NEUTRAL ENDING: Ya que no he estudiado, al menos me voy con mis amigos al bar.
+    """, 'ending': True},
+            '2': {'message': """
+    "Y como lo llevas?"
+        1. No he estudiado mucho, la verdad.
+        2. Bien, creo que apruebo
+    """},
+            '21': {'message': """
+    "Bueno, la asignatura es re fácil, seguro te lo hacés igual."
+    """, 'end': True},
+            '22': {'message': """
+    "Bueno, la asignatura es re fácil, seguro te lo hacés igual."
+    """, 'end': True}
+        }
+    })
     juan = Npc('cafeteria', {
         'normal': {
             '': {'message':"""
@@ -251,11 +283,37 @@ def init():
         1. Y que tengo que hacer para pedirte?
         2. Mejor preparame solo el cafe
     """},
+            '211': {'message': """
+    "Te apetece que quedemos mas tarde y lo hablamos?"
+        1. Cuando quieras, pero por ahora he de ir a un examen
+    """},
+            '2111': {'message': """
+    "Mucha suerte en tu examen, guapo! Vuelve luego y hablamos~"
+    """, 'end': True, 'ret': 'juan'},
+            '212': {'message': """
+    "Perdón", te responde avergonzado. Hace el café y te lo da.
+    """, 'end': True},
             '22': {'message': """
     "No lo se, ahora mismo solo me puedo fijar en ti"
-        1. Tampoco es que el resto sea muy interesante, verdad?
-        2. Mejor fijate solo en el cafe
+        1. Me gusta cuando me prestas tanta atención.
+        2. Mejor fíjate solo en el café.
     """},
+            '221': {'message': """
+    "Acabo a las 14, si quieres te llevo a comer y te presto toda la atención que quieras."
+        1. Mejor ponme otro café y te espero aquí.
+        2. Tengo un examen, así que vuelvo al acabar.
+    """},
+            '2211': {'message': """
+    Juan te prepara otro café y os quedáis juntos todo el día.
+    GOOD ENDING: Total, no había estudiado.
+    """, 'ending': True},
+            '2212': {'message': """
+    "Mucha suerte en tu examen pues, nos vemos más tarde!"
+    Te das cuenta de que se te ha pasado el tiempo volando hablando con Juan.
+    """, 'end': True, 'ret': 'juan', 'time': 20},
+            '222': {'message': """
+    "Perdón", te responde avergonzado. Hace el café y te lo da.
+    """, 'end': True},
             '23': {'message': """
     "Adiós, ten un buen día!"
     """, 'end': True},
@@ -282,9 +340,9 @@ def init():
 
 def select_chat(player, npc, npcs):
     if npc == npcs['faraon']:
-        if 'juan' in player.conditions:
-            return 'juan'
         if player.time < 30:
+            return 'juan'
+        elif 'juan' in player.conditions:
             return 'pronto'
         else:
             return 'tarde'
@@ -341,9 +399,13 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
         elif 'hablar' in accion:
             if player.pos in Npc.locs:
                 for npc in Npc.npcs:
-                    if player.pos == npc.pos:
-                        if player.hablar(npc, select_chat(player, npc, npcs)):
+                    if player.pos == npc.pos and npc not in player.conditions:
+                        ret = player.hablar(npc, select_chat(player, npc, npcs))
+                        if ret == True:
                             return 0
+                        elif ret:
+                            player.conditions.append(ret)
+                        player.conditions.append(npc)
                         break
             else:
                 print("No hay nadie con quien hablar aquí.")
@@ -353,5 +415,7 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
             break
 
         print()
+
+    input('Pulsa ENTER para salir.')
 
 start()
