@@ -162,19 +162,39 @@ def init():
     """},
             '1': {'message': """
     "Sii, se me acercan cuando llevo comida."
-        1. 
-        2. 
-        3. 
+        1. Qué suerte tienen de que les des cariño.
+        2. Eres tan guay...
+        3. Hmm
     """},
-
+            '11': {'message': """
+    "Si te apetece podemos jugar con los gatos otro día, que ya me tengo que ir"
+    Te deja su número y se va.
+    """, 'end': True},
+            '12': {'message': """
+    "Bueno yo ya me tenía que ir..."
+    """, 'end': True},
+            '13': {'message': """
+    Os quedáis en un silencio incómodo hasta que ella se va.
+    """, 'end': True},
             '2': {'message': """
     "Sigue todo recto hacia el norte."
     """, 'end': True},
-
             '3': {'message': """
     "Necesitas algo?"
+        1. ... Bueno, no, da igual.
+        2. Solo miraba a los gatos.
+        3. *Irse*
     """},
-            '4': {'message': '', 'end': True}
+            '31': {'message': """
+    Sigues tu camino por la universidad.
+    """, 'end': True},
+            '32': {'message': """
+    "Son muy bonitos" responde ella y se va.
+    """, 'end': True},
+            '33': {'message': """
+    """, 'end': True},
+            '4': {'message': """
+    """, 'end': True}
         }
     })
     nahuel = Npc('facultad', {
