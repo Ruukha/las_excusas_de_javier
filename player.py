@@ -30,11 +30,12 @@ class Player:
                 d = 2
             case 'oeste':
                 d = 3
-        if 'time' in room:
+        if 'time' in room and room['time'][d]:
             self.add_time(room['time'][d])
         self.pos = room['dir'][d] if room['dir'][d] else self.pos
         
     def collect(self, obj):
+        print(f'+{obj}')
         self.inv.append(obj)
 
     def display_time(self):
@@ -57,6 +58,8 @@ class Player:
 
             if 'time' in situation and situation['time']:
                 self.add_time(situation['time'])
+            if 'move'in situation and situation['move']:
+                param = situation['move']
             if 'repeat' in situation and situation['repeat']:
                 thread = thread[:-1]
                 continue

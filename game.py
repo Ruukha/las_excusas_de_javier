@@ -90,10 +90,7 @@ def init():
     """, 'end': True}
         }
     })
-
-    # Creación de personajes
-    javier = Player(map, 'habitación')
-    faraon = Npc('clase', {
+    faraon = Event('clase', {
         'tarde':
         {'': {'message': """
     "Por qué llegas tarde esta vez?"
@@ -146,8 +143,12 @@ def init():
         'pronto':
         {'': {'message': """
     Llegas pronto. Faraón te deja pasar al examen, aunque te mira sorprendido. No está acostumbrado a que llegues pronto
-    """, 'end': True}}
+    GOOD ENDING: haces el examen
+    """, 'ending': True}}
     })
+    
+    # Creación de personajes
+    javier = Player(map, 'habitación')
     chica = Npc('parque', {
         'normal':
         {
@@ -176,6 +177,93 @@ def init():
         }
     })
     nahuel = Npc('facultad', {})
+    juan = Npc('cafeteria', {
+        'normal': {
+            '': {'message':"""
+    "Buenos días!" te dice Juan, el barista.
+        1. Puedes prepararme un cafe rapido?
+        2. Como va todo en la cafetería?
+        3. Bueno, no tengo tiempo para charlas.
+    """},
+            '1': {'message': """
+    Juan sonríe y dice: "Como no, en 5 minutos tienes tu café"
+        1. Te molesta si espero aquí mientras lo preparas?
+        2. Genial, gracias por ser tan rapido.
+        3. No, olvidálo. Mejor me voy.
+    """},
+            '11': {'message': """
+    "Por supuesto que no, guapo! Quedate aqui mientras preparo tu cafe, puedes contarme que tal te va el dia mientras tanto"
+        1. Deberia de estar haciendo un examen
+        2. Pues he conocido a una chica en el parque...
+        3. No tengo mucho que contar.
+    """},
+            '111': {'message': """
+    "Pues ve a hacerlo! Mucha suerte! Puedes pasarte luego por aqui, si quieres."
+        1. Prefiero estar contigo
+        2. Lo hare, nos vemos luego!
+        3. Gracias.
+    """},
+            '1111': {'messsage': """
+    "Hagamos una cosa; yo te acompaño al examen y tú lo haces lo mejor que puedas."
+        1. Vale, pero vayamos rápido, que ya casi es la hora
+    """},
+            '11111': {'message': """
+    """, 'end': True, 'time': 20, 'move': 'clase'},
+            '1112': {'message': """
+    "Hasta luego", dice mientras te entrega el café.
+    """, 'end': True},
+            '1113': {'message': """
+    Juan te entrega el café en silencio.
+    """, 'end': True},
+            '112': {'message': """
+    "Oh, ya veo", responde seriamente. Te entrega el café en silencio y te vas.
+    """, 'end': True},
+            '113': {'message': """
+    "Ya veo", dice mientras te entrega el café.
+    """, 'end': True},
+            '12': {'message': """
+    "Es mi trabajo! Además, quien no querría servirle a un chico como tú"
+        1. Y quien no querría que le sirviese un chico como tú?
+        2. Mejor sírveme en silencio.
+    """},
+            '121': {'message': """
+    Juan sonríe mientras se toca el pelo, y te da el café.
+        1. Ojalá quedarme contigo, pero tengo un examen
+    """},
+            '1211': {'message': """
+    "Y por qué no te acompaño al examen? Tengo un ratito libre.
+        1. Me encantaría, pero vamos rápido, que se me ha hecho tarde.
+    """, 'end': True, 'time': 20, 'move': 'clase'},
+            '122': {'message': """
+    "Perdón", te responde avergonzado. Hace el café y te lo da.
+    """, 'end': True},
+            '13': {'message': """
+    Juan te responde "bueno, ten un buen día", no muy contento.
+    """, 'end': True},
+            '2': {'message': """
+    Juan asiente mientras revisa las maquinas, "Todo va bien, igual que siempre."
+        1. Algo nuevo en el menu hoy?
+        2. Quien mas esta por aqui?
+        3. Bueno, ya me voy. Chao!
+    """},
+            '21': {'message': """
+    "Nada nuevo, a no ser que quieras que yo sea parte de tu menu"
+        1. Y que tengo que hacer para pedirte?
+        2. Mejor preparame solo el cafe
+    """},
+            '22': {'message': """
+    "No lo se, ahora mismo solo me puedo fijar en ti"
+        1. Tampoco es que el resto sea muy interesante, verdad?
+        2. Mejor fijate solo en el cafe
+    """},
+            '23': {'message': """
+    "Adiós, ten un buen día!"
+    """, 'end': True},
+            '3': {'message': """
+    "Adiós" responde Juan, algo serio.
+    """, 'end': True}
+        }
+    })
     ayuda = """
     Acciones       Descripcion
      ayuda          Muestra esta lista
@@ -188,16 +276,15 @@ def init():
      salir          Saldrás de la partida
     """
 
-    eventos = {'despertador': despertador, 'ducha': ducha, 'bus': bus, 'tram': tram}
-    personajes = {'faraon': faraon, 'chica': chica, 'nahuel': nahuel, 'ayuda': ayuda}
+    eventos = {'faraon': faraon, 'despertador': despertador, 'ducha': ducha, 'bus': bus, 'tram': tram}
+    personajes = {'chica': chica, 'nahuel': nahuel, 'juan': juan, 'ayuda': ayuda}
     return javier, map, eventos, personajes
 
 def select_chat(player, npc, npcs):
     if npc == npcs['faraon']:
         if 'juan' in player.conditions:
             return 'juan'
-        time = player.time
-        if time < 30:
+        if player.time < 30:
             return 'pronto'
         else:
             return 'tarde'
@@ -225,7 +312,10 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
                     ret = player.hablar(event, select_chat(player, event, npcs))
                     player.conditions.append(event)
                     if ret:
-                        player.conditions.append(ret)
+                        if ret in map:
+                            player.pos = ret
+                        else:
+                            player.conditions.append(ret)
                     break
 
         # Manejo de acciones
@@ -233,21 +323,21 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
         if accion in ['norte', 'sur', 'este', 'oeste']:
             player.move(accion)
         elif 'coger' in accion:
-            #AQUI hacer este trozo de código como eventos, diferentes chats para los ifs y seleccionar_chat para elegirlos
             if player.pos == 'entradita':
                 if 'coger' in accion:
-                    player.inv.append('cartera')
+                    player.collect('cartera')
             if player.pos in ['bus', 'tram']:
                 if 'bus' in player.conditions and player.pos == 'bus' or 'tram' in player.conditions and player.pos == 'tram':
-                    print('Ya ha pasado.')
+                    print('Ya ha pasado.\n')
                     continue
                 elif 'cartera' in player.inv:
                     print("Pagas un viaje y vas hacia el campus")
+                    player.conditions.append(player.pos)
                     player.pos = 'entrada al campus'
                 else:
-                    print("No tienes dinero y el conductor te tira.")
+                    print("Te has dejado la cartera en casa, el conductor te tira.")
+                    player.conditions.append(player.pos)
                     player.pos = 'calle'
-                player.conditions.append(player.pos)
         elif 'hablar' in accion:
             if player.pos in Npc.locs:
                 for npc in Npc.npcs:
