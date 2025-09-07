@@ -3,24 +3,24 @@ from npc import Npc, Event
 
 def init():
     # Creación del mapa
-    # El mapa es un esquema relacional; lugar: ([N, S, E, O], desc)
+    # El mapa es un esquema relacional; lugar: {[N, S, E, O], desc}
     map = {
-        'habitación': (['baño', None, 'comedor', None], "pequeña, desordenada, donde paso la mayor parte del día."),
-        'baño': ([None, 'habitación', None, None], "pequeño pero acogedor."),
-        'comedor': (['cocina', None, 'entradita', 'habitación'], "bastante espacioso. Aun no recogí las cajas vacias de pizza de ayer."),
-        'cocina': ([None, 'comedor', None, None], "una cocina normal, aunque algo caótica."),
-        'entradita': ([None, 'calle', None, 'comedor'], "pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."),
-        'calle': (['entradita', 'tram', 'calle2', 'bus'], "se respira un aire fresco que me motiva a no llegar tarde hoy también."),
-        'calle2': ([None, None, 'entrada al campus', 'calle'], "me estoy acercando al campus, aunque me estoy cansando ya de caminar."),
-        'entrada al campus': ([None, None, 'centro del campus', 'calle2'], ""),
-        'centro del campus': (['facultad', 'cafetería', 'parque', 'entrada al campus'], "la mejor universidad de la zona, la verdad no sé ni cómo me aceptaron."),
-        'cafetería': ([None, None, None, 'centro del campus'], "lleno de gente de todo el campus. Está el camarero."),
-        'facultad': (['bar', 'centro del campus', None, 'clase'], "es donde está tu clase. Ves a Nahuel saludándote."),
-        'parque': (['centro del campus', None, None, None], "el parque es tan verde y encantador como siempre, dan ganas de quedarse aquí y no ir a clase. Hay una chica."),
-        'bar': ([None, 'facultad', None, None], ""),
-        'clase': ([None, None, None, None], "me espera Faraon, que se imaginaba que podría llegar tarde."),
-        'bus': ([None, None, 'calle', None], "estás en la parada del bus."),
-        'tram': (['calle', None, None, None], "estás en la parada del tram.")
+        'habitación': {'dir': ['baño', None, 'comedor', None], 'desc': "pequeña, desordenada, donde paso la mayor parte del día."},
+        'baño': {'dir': [None, 'habitación', None, None], 'desc': "pequeño pero acogedor."},
+        'comedor': {'dir': ['cocina', None, 'entradita', 'habitación'], 'desc': "bastante espacioso. Aun no recogí las cajas vacias de pizza de ayer."},
+        'cocina': {'dir': [None, 'comedor', None, None], 'desc': "una cocina normal, aunque algo caótica."},
+        'entradita': {'dir': [None, 'calle', None, 'comedor'], 'desc': "pequeña y estrecha, con un mueble en el que suelo dejar las llaves y la cartera."},
+        'calle': {'dir': ['entradita', 'tram', 'calle2', 'bus'], 'time': [0, 0, 5, 0], 'desc': "se respira un aire fresco que me motiva a no llegar tarde hoy también."},
+        'calle2': {'dir': [None, None, 'entrada al campus', 'calle'], 'time': [0, 0, 5, 5], 'desc': "me estoy acercando al campus, aunque me estoy cansando ya de caminar."},
+        'entrada al campus': {'dir': [None, None, 'centro del campus', 'calle2'], 'desc': ""},
+        'centro del campus': {'dir': ['facultad', 'cafetería', 'parque', 'entrada al campus'], 'desc': "la mejor universidad de la zona, la verdad no sé ni cómo me aceptaron."},
+        'cafetería': {'dir': ['centro del campus', None, None, None], 'desc': "lleno de gente de todo el campus. Está el camarero."},
+        'facultad': {'dir': ['bar', 'centro del campus', None, 'clase'], 'desc': "es donde está tu clase. Ves a Nahuel saludándote."},
+        'parque': {'dir':[None, None, None, 'centro del campus'], 'desc': "el parque es tan verde y encantador como siempre, dan ganas de quedarse aquí y no ir a clase. Hay una chica."},
+        'bar': {'dir': [None, 'facultad', None, None], 'desc': ""},
+        'clase': {'dir': [None, None, None, None], 'desc': "me espera Faraon, que se imaginaba que podría llegar tarde."},
+        'bus': {'dir': [None, None, 'calle', None], 'desc': "estás en la parada del bus."},
+        'tram': {'dir': ['calle', None, None, None], 'desc': "estás en la parada del tram."}
     }
 
     # Creación de eventos
@@ -34,7 +34,7 @@ def init():
     """},
             '1': {'message': """
     Apagas el despertador y te levantas. Empieza tu día.
-    """, 'end': True},
+""", 'end': True},
             '2': {'message': """
     Te quedas dormido hasta que vuelva a sonar.
     """, 'time': 5, 'repeat': True}
@@ -57,7 +57,7 @@ def init():
     """, 'time': 30, 'end': True},
             '3': {'message': """
     Te pones algo de desodorante, esperando que no lo noten tus compañeros.
-    """, 'end': True}
+""", 'end': True}
         }
     })
     bus = Event('bus', {
@@ -70,7 +70,7 @@ def init():
     """},
             '1': {'message': """
     Tras esperar un poco al bus, finalmente llega.
-    """, 'time': 10, 'end': True, 'return': 'bus'},
+    """, 'time': 10, 'end': True},
             '2': {'message':"""
     """, 'end': True, 'return': 'bus'}
         }
@@ -85,9 +85,9 @@ def init():
     """},
             '1': {'message': """
     Tras esperar un poco al tram, finalmente llega.
-    """, 'time': 10, 'end': True, 'return': 'tram'},
+    """, 'time': 10, 'end': True},
             '2': {'message':"""
-    """, 'end': True, 'return': 'tram'}
+    """, 'end': True}
         }
     })
 
@@ -194,10 +194,10 @@ def init():
 
 def select_chat(player, npc, npcs):
     if npc == npcs['faraon']:
-        if player.conditions['juan']:
+        if 'juan' in player.conditions:
             return 'juan'
         time = player.time
-        if time < 60:
+        if time < 30:
             return 'pronto'
         else:
             return 'tarde'
@@ -206,51 +206,53 @@ def select_chat(player, npc, npcs):
         
 # bucle del juego
 def start():
-    javier, map, eventos, npcs = init()
+    player, map, eventos, npcs = init()
     print("""
 Llevas unos meses estudiando ingeneria de IA en la universidad. Todos los dias intentas llegar a tiempo, pero siempre pasa algo que te lo impide.
 Faraón, tu profesor, siempre dice lo mismo; "Tienes mas cuentos que Calleja", y es probable que no acepte más excusas.
-Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura de Faraon, te preparas la alarma y te vas a dormir, aunque algo tarde.
+Sabiendo que el día siguiente tienes el examen final de lógica, la asignatura de Faraón, repasas el temario y te vas a dormir, aunque algo tarde.
+El examen es a las 9am, así que programas el despertador para las 8:30am.
 """, end='')
     print(npcs['ayuda'])
     
     while True:
-        javier.describe()
+        player.describe()
 
         # Manejo de eventos
-        if javier.pos in Event.locs:
+        if player.pos in Event.locs:
             for event in Event.npcs:
-                if javier.pos == event.pos and event not in javier.conditions:
-                    time, ret = event.hablar(select_chat(javier, event))
-                    javier.time += time
-                    javier.conditions.append(event)
+                if player.pos == event.pos and event not in player.conditions:
+                    ret = player.hablar(event, select_chat(player, event, npcs))
+                    player.conditions.append(event)
                     if ret:
-                        javier.conditions.append(ret)
+                        player.conditions.append(ret)
                     break
 
         # Manejo de acciones
         accion = input('Acción: ').lower()
         if accion in ['norte', 'sur', 'este', 'oeste']:
-            javier.move(accion)
+            player.move(accion)
         elif 'coger' in accion:
-            if javier.pos == 'entradita':
+            #AQUI hacer este trozo de código como eventos, diferentes chats para los ifs y seleccionar_chat para elegirlos
+            if player.pos == 'entradita':
                 if 'coger' in accion:
-                    javier.inv.append('cartera')
-            if javier.pos in ['bus', 'tram']:
-                if 'bus' in javier.conditions and javier.pos == 'bus' or 'tram' in javier.conditions and javier.pos == 'tram':
+                    player.inv.append('cartera')
+            if player.pos in ['bus', 'tram']:
+                if 'bus' in player.conditions and player.pos == 'bus' or 'tram' in player.conditions and player.pos == 'tram':
                     print('Ya ha pasado.')
                     continue
-                elif 'cartera' in javier.inv:
+                elif 'cartera' in player.inv:
                     print("Pagas un viaje y vas hacia el campus")
-                    javier.pos = 'entrada al campus'
+                    player.pos = 'entrada al campus'
                 else:
                     print("No tienes dinero y el conductor te tira.")
-                    javier.pos = 'calle'
+                    player.pos = 'calle'
+                player.conditions.append(player.pos)
         elif 'hablar' in accion:
-            if javier.pos in Npc.locs:
+            if player.pos in Npc.locs:
                 for npc in Npc.npcs:
-                    if javier.pos == npc.pos:
-                        if npc.hablar(select_chat(javier, npc, npcs)):
+                    if player.pos == npc.pos:
+                        if player.hablar(npc, select_chat(player, npc, npcs)):
                             return 0
                         break
             else:
