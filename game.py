@@ -57,7 +57,7 @@ def init():
     """, 'time': 30, 'end': True},
             '3': {'message': """
     Te pones algo de desodorante, esperando que no lo noten tus compañeros.
-""", 'end': True}
+""", 'end': True, 'ret': 'guarro'}
         }
     })
     bus = Event('bus', {
@@ -340,6 +340,15 @@ def init():
             '3': {'message': """
     "Adiós" responde Juan, algo serio.
     """, 'end': True}
+        },
+        'guarro': {
+            '': {'message': """
+    "Buenos días! Con prisas hoy?"
+        1. Sí, tengo un examen. Como lo has sabido?
+    """},
+            '1': {'message': """
+    "Porque parece que no te has duchado esta mañana", responde Juan mientras te prepara lo de siempre. "Aquí tienes tu café."      
+    """, 'end': True}
         }
     })
     ayuda = """
@@ -366,12 +375,15 @@ def select_chat(player, npc, npcs):
             return 'pronto'
         else:
             return 'tarde'
+    elif npc == npcs['juan']:
+        if 'guarro' in player.conditions:
+            return 'guarro'
     else:
         return 'normal'
         
 # bucle del juego
 def start():
-    player, map, eventos, npcs = init()
+    player, map, events, npcs = init()
     print("""
 Llevas unos meses estudiando ingeneria de IA en la universidad. Todos los dias intentas llegar a tiempo, pero siempre pasa algo que te lo impide.
 Faraón, tu profesor, siempre dice lo mismo; "Tienes mas cuentos que Calleja", y es probable que no acepte más excusas.
@@ -387,7 +399,7 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
         if player.pos in Event.locs:
             for event in Event.npcs:
                 if player.pos == event.pos and event not in player.conditions:
-                    ret = player.hablar(event, select_chat(player, event, npcs))
+                    ret = player.hablar(event, select_chat(player, event, events))
                     player.conditions.append(event)
                     if ret:
                         if ret in map:
