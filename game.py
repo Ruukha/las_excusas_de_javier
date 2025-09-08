@@ -102,19 +102,19 @@ def init():
          '1': {'message': """
     "Y seguro que no tenía a nadie más, invéntate una excusa mejor a la próxima."
     BAD ENDING: No haces el examen
-    """, 'ending': True},
+""", 'ending': True},
          '2': {'message': """
     "Haberte despertado antes, gandul."
     BAD ENDING: No haces el examen
-    """, 'ending': True},
+""", 'ending': True},
          '3': {'message': """
     "Al menos eres sincero, despiértate más pronto para la recuperación."
     BAD ENDING: No haces el examen
-    """, 'ending': True},
+""", 'ending': True},
          '4': {'message': """
     "Que sean otros 18 años más."
     BAD ENDING: No haces el examen
-    """, 'ending': True}
+""", 'ending': True}
     },
         'juan':
         {'': {'message': """
@@ -138,13 +138,13 @@ def init():
     Además, Juan, sintiéndose culpable de hacerte llegar tarde al examen (como si
     no fueses ya tarde de por sí), te anima a estudiar y apruebas en la recuperación.
     GOOD ENDING: Juan
-    """, 'ending': True}
+""", 'ending': True}
     },
         'pronto':
         {'': {'message': """
     Llegas pronto. Faraón te deja pasar al examen, aunque te mira sorprendido. No está acostumbrado a que llegues pronto
     GOOD ENDING: haces el examen
-    """, 'ending': True}}
+""", 'ending': True}}
     })
     
     # Creación de personajes
@@ -326,7 +326,7 @@ def init():
             '2211': {'message': """
     Juan te prepara otro café y os quedáis juntos todo el día.
     GOOD ENDING: Total, no había estudiado.
-    """, 'ending': True},
+""", 'ending': True},
             '2212': {'message': """
     "Mucha suerte en tu examen pues, nos vemos más tarde!"
     Te das cuenta de que se te ha pasado el tiempo volando hablando con Juan.
@@ -368,18 +368,22 @@ def init():
     return javier, map, eventos, personajes
 
 def select_chat(player, npc, npcs):
-    if npc == npcs['faraon']:
-        if player.time < 30:
-            return 'juan'
-        elif 'juan' in player.conditions:
-            return 'pronto'
+    if type(npc) == Event:
+        if npc == npcs['faraon']:
+            if player.time < 30:
+                return 'pronto'
+            elif 'juan' in player.conditions:
+                return 'juan'
+            else:
+                return 'tarde'
+    elif type(npc) == Npc:
+        if npc == npcs['juan']:
+            if 'guarro' in player.conditions:
+                return 'guarro'
+            else:
+                return 'normal'
         else:
-            return 'tarde'
-    elif npc == npcs['juan']:
-        if 'guarro' in player.conditions:
-            return 'guarro'
-    else:
-        return 'normal'
+            return 'normal'
         
 # bucle del juego
 def start():
@@ -404,6 +408,8 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
                     if ret:
                         if ret in map:
                             player.pos = ret
+                        elif ret == True:
+                            return 0
                         else:
                             player.conditions.append(ret)
                     break
@@ -448,6 +454,5 @@ El examen es a las 9am, así que programas el despertador para las 8:30am.
 
         print()
 
-    input('Pulsa ENTER para salir.')
-
 start()
+input('Pulsa ENTER para salir.')

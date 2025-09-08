@@ -50,6 +50,8 @@ class Player:
         self.time += time
 
     def hablar(self, npc, chat='normal'):
+        if chat == None:
+            chat = 'normal'
         thread = ''
         param = None
         while True:
